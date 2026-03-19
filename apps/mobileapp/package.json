@@ -1,0 +1,31 @@
+{
+  "name": "@derive/mobileapp",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "dev": "expo start --clear",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build": "expo export --platform ios --output-dir dist",
+    "lint": "eslint App.tsx index.ts src --max-warnings=0",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@derive/api-contracts": "workspace:*",
+    "@derive/auth": "workspace:*",
+    "@derive/config": "workspace:*",
+    "@derive/geo": "workspace:*",
+    "@derive/privacy": "workspace:*",
+    "expo": "~55.0.8",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-native": "0.83.2",
+    "react-native-web": "0.21.2"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "~5.9.2"
+  }
+}

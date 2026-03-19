@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@derive/shared-types": ["packages/shared-types/src/index.ts"],
+      "@derive/domain": ["packages/domain/src/index.ts"],
+      "@derive/api-contracts": ["packages/api-contracts/src/index.ts"],
+      "@derive/validation": ["packages/validation/src/index.ts"],
+      "@derive/realtime": ["packages/realtime/src/index.ts"],
+      "@derive/auth": ["packages/auth/src/index.ts"],
+      "@derive/geo": ["packages/geo/src/index.ts"],
+      "@derive/privacy": ["packages/privacy/src/index.ts"],
+      "@derive/ui": ["packages/ui/src/index.tsx"],
+      "@derive/config": ["packages/config/src/index.ts"]
+    },
+    "jsx": "react-jsx",
+    "strict": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

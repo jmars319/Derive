@@ -1,0 +1,35 @@
+{
+  "name": "derive",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": ">=22.21.1"
+  },
+  "scripts": {
+    "bootstrap": "./scripts/bootstrap.sh",
+    "check-env": "./scripts/check-env.sh",
+    "check-packages": "./scripts/check-packages.sh",
+    "dev:web": "./scripts/dev-web.sh",
+    "dev:desktop": "./scripts/dev-desktop.sh",
+    "dev:mobile": "./scripts/dev-mobile.sh",
+    "dev:both": "./scripts/dev-both.sh",
+    "verify:web": "./scripts/verify-web.sh",
+    "verify:desktop": "./scripts/verify-desktop.sh",
+    "verify:mobile": "./scripts/verify-mobile.sh",
+    "verify:all": "./scripts/verify-all.sh",
+    "doctor": "./scripts/doctor.sh",
+    "build:packages": "pnpm -C packages/shared-types build && pnpm -C packages/config build && pnpm -C packages/domain build && pnpm -C packages/api-contracts build && pnpm -C packages/validation build && pnpm -C packages/privacy build && pnpm -C packages/realtime build && pnpm -C packages/auth build && pnpm -C packages/geo build && pnpm -C packages/ui build",
+    "typecheck": "pnpm build:packages && pnpm -C apps/webapp typecheck && pnpm -C apps/desktopapp typecheck && pnpm -C apps/mobileapp typecheck",
+    "lint": "eslint . --max-warnings=0",
+    "build": "pnpm build:packages && pnpm verify:all"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "22.19.15",
+    "eslint": "10.0.3",
+    "globals": "17.4.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.57.1"
+  }
+}

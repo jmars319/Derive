@@ -1,0 +1,34 @@
+import type { SourceReference } from "@derive/domain";
+
+export type ExposureControl = "full" | "redacted" | "summary-only";
+
+export const defaultPrivacyPosture = {
+  intake: "Questions can be asked without requiring account setup in v0.",
+  storage: "No persistence guarantees are implied by the scaffold.",
+  sources: "Sources should be cited with purpose and exposure level, not dumped blindly."
+} as const;
+
+export function redactQuestionPreview(text: string): string {
+  const normalized = text.trim();
+
+  if (normalized.length <= 48) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, 45)}...`;
+}
+
+export function describeSourceExposure(
+  source: Pick<SourceReference, "title" | "exposure">,
+  control: ExposureControl
+): string {
+  if (control === "redacted") {
+    return `Source details are restricted. ${source.title} is retained only as a trace anchor.`;
+  }
+
+  if (control === "summary-only") {
+    return `${source.title} is surfaced as a cited reference without direct passage exposure.`;
+  }
+
+  return `${source.title} can be displayed according to its ${source.exposure} exposure level.`;
+}

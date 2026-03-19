@@ -1,0 +1,30 @@
+{
+  "name": "@derive/webapp",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src next.config.ts --max-warnings=0",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@derive/api-contracts": "workspace:*",
+    "@derive/config": "workspace:*",
+    "@derive/domain": "workspace:*",
+    "@derive/privacy": "workspace:*",
+    "@derive/shared-types": "workspace:*",
+    "@derive/ui": "workspace:*",
+    "@derive/validation": "workspace:*",
+    "next": "16.2.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.15",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "typescript": "5.9.3"
+  }
+}

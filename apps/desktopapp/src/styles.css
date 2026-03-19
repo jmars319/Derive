@@ -1,0 +1,27 @@
+:root {
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  color: #0f1720;
+  background: #f6f1e8;
+}
+
+body {
+  margin: 0;
+}
+
+.desktop-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.desktop-grid p,
+.desktop-grid li,
+.desktop-aside p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.desktop-grid ul {
+  margin: 0;
+  padding-left: 18px;
+}
