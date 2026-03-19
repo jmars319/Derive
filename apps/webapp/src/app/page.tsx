@@ -1,10 +1,16 @@
+"use client";
+
+import { type FormEvent, useState } from "react";
+
+import { mockHealthCheckResponse } from "@derive/api-contracts";
+import { readPublicConfig } from "@derive/config";
 import {
-  mockDeriveQuestionRequest,
-  mockDeriveQuestionResponse,
-  mockHealthCheckResponse
-} from "@derive/api-contracts";
-import { appName, readPublicConfig } from "@derive/config";
-import { normalizeQuestionText } from "@derive/domain";
+  deriveAnswer,
+  mockUserQuestion,
+  normalizeQuestionText,
+  type DerivedAnswer,
+  type UserQuestion
+} from "@derive/domain";
 import {
   defaultPrivacyPosture,
   describeSourceExposure,
@@ -14,110 +20,133 @@ import { CONFIDENCE_LEVELS } from "@derive/shared-types";
 import { PageShell, SectionCard, StatusPill } from "@derive/ui";
 import { deriveQuestionRequestSchema } from "@derive/validation";
 
-const config = readPublicConfig(process.env);
-const response = mockDeriveQuestionResponse;
-const requestValidation = deriveQuestionRequestSchema.safeParse(mockDeriveQuestionRequest);
-const normalizedPrompt = normalizeQuestionText(mockDeriveQuestionRequest.question);
-const confidenceRank = CONFIDENCE_LEVELS.indexOf(response.answer.confidence) + 1;
+const config = readPublicConfig({
+  NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+  NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL
+});
+
+function buildQuestion(text: string): UserQuestion {
+  const timestamp = Date.now();
+
+  return {
+    id: `question_${timestamp}`,
+    text,
+    createdAt: timestamp
+  };
+}
 
 export default function HomePage() {
+  const [questionText, setQuestionText] = useState(mockUserQuestion.text);
+  const [submittedQuestion, setSubmittedQuestion] = useState<UserQuestion>(mockUserQuestion);
+  const [answer, setAnswer] = useState<DerivedAnswer>(() => deriveAnswer(mockUserQuestion));
+
+  const normalizedPrompt = normalizeQuestionText(questionText);
+  const requestValidation = deriveQuestionRequestSchema.safeParse({
+    question: normalizedPrompt,
+    client: "webapp"
+  });
+  const confidenceRank = CONFIDENCE_LEVELS.indexOf(answer.confidence) + 1;
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!requestValidation.success) {
+      return;
+    }
+
+    const nextQuestion = buildQuestion(questionText);
+
+    setSubmittedQuestion(nextQuestion);
+    setAnswer(deriveAnswer(nextQuestion));
+  }
+
   return (
     <PageShell
       eyebrow="Active surface: webapp"
-      title={appName}
-      description="Derive accepts messy developer questions, resolves intent, and returns a structured answer with visible assumptions, context signals, and source traceability. This v0 scaffold is real architecture with mock data, not a fake backend."
+      title={config.appName}
+      description="Derive accepts messy developer questions, resolves simple local signals, and returns a deterministic structured answer with assumptions, context, confidence, and traceability. This phase is intentionally local and non-AI."
       aside={
         <div className="trust-note">
-          <StatusPill label={`${config.sourceMode} mode`} tone="warn" />
+          <StatusPill label="deterministic local pipeline" tone="good" />
           <h2>Trust model</h2>
           <p>
-            The answer below is imported from shared contracts. No live retrieval, synthesis, or
-            persistence is connected yet.
+            The result below is produced directly by `deriveAnswer()` in `@derive/domain`. No
+            external APIs, retrieval systems, or model calls are involved.
           </p>
           <dl>
             <div>
-              <dt>System status</dt>
-              <dd>{response.system.status}</dd>
-            </div>
-            <div>
               <dt>Confidence</dt>
               <dd>
-                {response.answer.confidence} ({confidenceRank}/{CONFIDENCE_LEVELS.length})
+                {answer.confidence} ({confidenceRank}/{CONFIDENCE_LEVELS.length})
               </dd>
             </div>
             <div>
-              <dt>Validation</dt>
-              <dd>{requestValidation.success ? "request shape valid" : "request shape invalid"}</dd>
+              <dt>Input validation</dt>
+              <dd>{requestValidation.success ? "request shape valid" : "question text required"}</dd>
+            </div>
+            <div>
+              <dt>Mode</dt>
+              <dd>{mockHealthCheckResponse.mode}</dd>
             </div>
           </dl>
         </div>
       }
     >
       <div className="webapp-layout">
-        <SectionCard title="Question intake" kicker="Messy prompt in, structured reasoning out">
-          <div className="composer">
+        <SectionCard title="Question intake" kicker="Messy prompt in, deterministic structure out">
+          <form className="composer" onSubmit={handleSubmit}>
             <label htmlFor="question" className="field-label">
               Ask the rough version first
             </label>
             <textarea
               id="question"
               name="question"
-              defaultValue={mockDeriveQuestionRequest.question}
+              value={questionText}
+              onChange={(event) => setQuestionText(event.target.value)}
               aria-label="Developer question draft"
             />
             <div className="composer-meta">
-              <StatusPill label="Mock intake" tone="neutral" />
+              <StatusPill
+                label={requestValidation.success ? "Input valid" : "Input required"}
+                tone={requestValidation.success ? "good" : "warn"}
+              />
               <p>
-                Normalized preview: <span>{normalizedPrompt}</span>
+                Normalized preview: <span>{normalizedPrompt || "Provide a question to derive."}</span>
               </p>
             </div>
-          </div>
+            <div className="submit-row">
+              <button type="submit" className="submit-button" disabled={!requestValidation.success}>
+                Derive answer
+              </button>
+              <p className="hint-copy">Runs the local domain pipeline without leaving the app.</p>
+            </div>
+          </form>
         </SectionCard>
 
         <div className="webapp-grid">
           <SectionCard title="Derived answer" kicker="Structured answer surface">
             <div className="answer-card">
-              <p className="answer-summary">{response.answer.summary}</p>
-              <p>{response.answer.answer}</p>
-              <div className="scope-grid">
-                <div>
-                  <h3>In scope</h3>
-                  <ul>
-                    {response.answer.scope.inScope.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h3>Out of scope</h3>
-                  <ul>
-                    {response.answer.scope.outOfScope.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+              <p className="answer-summary">{answer.answerText}</p>
             </div>
           </SectionCard>
 
           <SectionCard title="Context and assumptions" kicker="Traceability first">
             <div className="stack-list">
-              {response.answer.contextSignals.map((signal) => (
-                <article key={signal.id} className="stack-item">
+              {answer.context.map((signal, index) => (
+                <article key={`${signal.kind}-${signal.value}-${index}`} className="stack-item">
                   <div className="stack-header">
-                    <h3>{signal.label}</h3>
+                    <h3>{signal.value}</h3>
                     <StatusPill label={signal.kind} tone="neutral" />
                   </div>
-                  <p>{signal.detail}</p>
                 </article>
               ))}
-              {response.answer.assumptions.map((assumption) => (
-                <article key={assumption.id} className="stack-item">
+              {answer.assumptions.map((assumption, index) => (
+                <article key={`${assumption.text}-${index}`} className="stack-item">
                   <div className="stack-header">
                     <h3>Assumption</h3>
-                    <StatusPill label={assumption.impact} tone="warn" />
+                    <StatusPill label="derived" tone="warn" />
                   </div>
-                  <p>{assumption.statement}</p>
+                  <p>{assumption.text}</p>
                 </article>
               ))}
             </div>
@@ -125,15 +154,14 @@ export default function HomePage() {
         </div>
 
         <div className="webapp-grid">
-          <SectionCard title="Cited sources" kicker="Source attribution">
+          <SectionCard title="Cited sources" kicker="Static but structured references">
             <div className="sources">
-              {response.answer.sources.map((source) => (
-                <article key={source.id} className="source-item">
+              {answer.sources.map((source) => (
+                <article key={`${source.title}-${source.url}`} className="source-item">
                   <div className="stack-header">
                     <h3>{source.title}</h3>
                     <StatusPill label={source.kind} tone="good" />
                   </div>
-                  <p>{source.whyItMatters}</p>
                   <p className="source-exposure">
                     {describeSourceExposure(source, "summary-only")}
                   </p>
@@ -145,26 +173,26 @@ export default function HomePage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="System note" kicker="What this scaffold is and is not">
+          <SectionCard title="System note" kicker="What this phase is and is not">
             <div className="system-note">
               <p>
-                {appName} is centered on shared domain contracts, not app-local business logic. The
-                web app is the active surface; desktop and mobile are intentionally thin scaffolds.
+                {config.appName} is using a real domain pipeline now, but it remains a local,
+                deterministic Phase 1 implementation rather than a backend-backed answer system.
               </p>
               <dl>
                 <div>
-                  <dt>Question preview</dt>
-                  <dd>{redactQuestionPreview(response.receivedQuestion.rawText)}</dd>
-                </div>
-                <div>
-                  <dt>Public app name</dt>
-                  <dd>{config.appName}</dd>
+                  <dt>Submitted question</dt>
+                  <dd>{redactQuestionPreview(submittedQuestion.text)}</dd>
                 </div>
                 <div>
                   <dt>Health check</dt>
                   <dd>
                     {mockHealthCheckResponse.status} / {mockHealthCheckResponse.mode}
                   </dd>
+                </div>
+                <div>
+                  <dt>Surface status</dt>
+                  <dd>{mockHealthCheckResponse.surfaces.webapp}</dd>
                 </div>
                 <div>
                   <dt>Source posture</dt>

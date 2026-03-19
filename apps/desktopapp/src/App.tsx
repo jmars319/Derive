@@ -27,7 +27,7 @@ export default function App() {
           </p>
         </SectionCard>
         <SectionCard title="Latest mock answer" kicker="Shared contract import">
-          <p>{mockDeriveQuestionResponse.answer.summary}</p>
+          <p>{mockDeriveQuestionResponse.answer.answerText}</p>
         </SectionCard>
         <SectionCard title="Pipeline preview" kicker="Realtime package placeholder">
           <ul>

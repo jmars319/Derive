@@ -19,7 +19,7 @@ export function redactQuestionPreview(text: string): string {
 }
 
 export function describeSourceExposure(
-  source: Pick<SourceReference, "title" | "exposure">,
+  source: Pick<SourceReference, "title" | "kind">,
   control: ExposureControl
 ): string {
   if (control === "redacted") {
@@ -27,8 +27,8 @@ export function describeSourceExposure(
   }
 
   if (control === "summary-only") {
-    return `${source.title} is surfaced as a cited reference without direct passage exposure.`;
+    return `${source.title} is surfaced as a cited ${source.kind} reference without external fetching.`;
   }
 
-  return `${source.title} can be displayed according to its ${source.exposure} exposure level.`;
+  return `${source.title} can be displayed as a ${source.kind} source in the current UI.`;
 }

@@ -5,80 +5,46 @@ import {
   type HealthCheckResponse
 } from "@derive/api-contracts";
 import {
-  ASSUMPTION_IMPACT_LEVELS,
-  CONTEXT_SIGNAL_KINDS,
-  DERIVATION_MODES,
-  SOURCE_EXPOSURE_LEVELS,
   type DerivedAnswer,
   type SourceReference,
   type UserQuestion
 } from "@derive/domain";
-import { CONFIDENCE_LEVELS, SOURCE_KINDS } from "@derive/shared-types";
+import { CONFIDENCE_LEVELS } from "@derive/shared-types";
 import { z } from "zod";
 
 export const idSchema = z.string().min(1);
 export const timestampMsSchema = z.number().int().nonnegative();
 export const urlStringSchema = z.url();
-export const sourceKindSchema = z.enum(SOURCE_KINDS);
+export const sourceKindSchema = z.string().min(1);
 export const confidenceLevelSchema = z.enum(CONFIDENCE_LEVELS);
 
 export const userQuestionSchema: z.ZodType<UserQuestion> = z.object({
   id: idSchema,
-  rawText: z.string().min(1),
-  normalizedText: z.string().min(1),
-  askedAt: timestampMsSchema,
-  tags: z.array(z.string().min(1))
+  text: z.string().min(1),
+  createdAt: timestampMsSchema
 });
 
 export const sourceReferenceSchema: z.ZodType<SourceReference> = z.object({
-  id: idSchema,
   title: z.string().min(1),
   url: urlStringSchema,
-  kind: sourceKindSchema,
-  whyItMatters: z.string().min(1),
-  exposure: z.enum(SOURCE_EXPOSURE_LEVELS)
+  kind: sourceKindSchema
 });
 
 export const derivedAnswerSchema: z.ZodType<DerivedAnswer> = z.object({
-  id: idSchema,
-  summary: z.string().min(1),
-  answer: z.string().min(1),
+  answerText: z.string().min(1),
   confidence: confidenceLevelSchema,
-  scope: z.object({
-    inScope: z.array(z.string().min(1)),
-    outOfScope: z.array(z.string().min(1))
-  }),
   assumptions: z.array(
     z.object({
-      id: idSchema,
-      statement: z.string().min(1),
-      impact: z.enum(ASSUMPTION_IMPACT_LEVELS)
+      text: z.string().min(1)
     })
   ),
-  contextSignals: z.array(
+  context: z.array(
     z.object({
-      id: idSchema,
-      kind: z.enum(CONTEXT_SIGNAL_KINDS),
-      label: z.string().min(1),
-      detail: z.string().min(1)
+      kind: z.string().min(1),
+      value: z.string().min(1)
     })
   ),
-  sources: z.array(sourceReferenceSchema),
-  retrievalCandidates: z.array(
-    z.object({
-      id: idSchema,
-      title: z.string().min(1),
-      url: urlStringSchema,
-      kind: sourceKindSchema,
-      summary: z.string().min(1),
-      score: z.number().min(0).max(1)
-    })
-  ),
-  trace: z.object({
-    mode: z.enum(DERIVATION_MODES),
-    generatedAt: timestampMsSchema,
-    notes: z.array(z.string().min(1))
-  })
+  sources: z.array(sourceReferenceSchema)
 });
 
 export const deriveQuestionRequestSchema: z.ZodType<DeriveQuestionRequest> = z.object({

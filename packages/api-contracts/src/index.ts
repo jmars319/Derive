@@ -37,19 +37,19 @@ export type HealthCheckResponse = {
 };
 
 export const mockDeriveQuestionRequest: DeriveQuestionRequest = {
-  question: normalizeQuestionText(mockUserQuestion.rawText),
+  question: normalizeQuestionText(mockUserQuestion.text),
   client: "webapp",
-  hints: ["trust", "traceability", "monorepo"]
+  hints: ["deterministic", "traceability", "phase-1"]
 };
 
 export const mockDeriveQuestionResponse: DeriveQuestionResponse = {
-  requestId: "request_demo_monorepo_resolution",
+  requestId: "request_demo_next_typescript_failure",
   receivedQuestion: mockUserQuestion,
   answer: mockDerivedAnswer,
   system: {
     mode: "mock",
-    status: "stubbed",
-    note: "Static preview only. The retrieval and synthesis services are not wired yet."
+    status: "ready",
+    note: "Deterministic local pipeline only. No external retrieval or AI synthesis is connected."
   }
 };
 

@@ -21,7 +21,7 @@ export default function MobileApp() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Question preview</Text>
         <Text style={styles.body}>
-          {redactQuestionPreview(mockDeriveQuestionResponse.receivedQuestion.rawText)}
+          {redactQuestionPreview(mockDeriveQuestionResponse.receivedQuestion.text)}
         </Text>
       </View>
 
