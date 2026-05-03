@@ -3,7 +3,7 @@
 ## Apps
 
 - `apps/webapp`
-  Active surface. Next.js app that renders the Derive concept clearly: messy question intake, structured answer, context and assumptions, source citations, and trust framing. It uses static mock data from shared contracts and does not imply a live backend.
+  Active surface. Next.js app that renders the tenra Derive concept clearly: messy question intake, structured answer, context and assumptions, source citations, and trust framing. It uses static mock data from shared contracts and does not imply a live backend.
 - `apps/desktopapp`
   Scaffolded React desktop shell built with Vite. It imports shared contracts and placeholder realtime/auth helpers. `src-tauri/` exists only as native-shell shape, not as an active implementation.
 - `apps/mobileapp`

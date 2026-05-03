@@ -64,7 +64,7 @@ export default function HomePage() {
     <PageShell
       eyebrow="Active surface: webapp"
       title={config.appName}
-      description="Derive accepts messy developer questions, resolves simple local signals, and returns a deterministic structured answer with assumptions, context, confidence, and traceability. This phase is intentionally local and non-AI."
+      description="tenra Derive accepts messy developer questions, resolves simple local signals, and returns a deterministic structured answer with assumptions, context, confidence, and traceability. This phase is intentionally local and non-AI."
       aside={
         <div className="trust-note">
           <StatusPill label="deterministic local pipeline" tone="good" />

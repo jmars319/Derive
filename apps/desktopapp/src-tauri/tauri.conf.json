@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Derive",
+  "productName": "tenra Derive",
   "version": "0.0.0",
-  "identifier": "dev.jamarq.derive",
+  "identifier": "co.tenra.derive",
   "build": {
     "beforeDevCommand": "",
     "beforeBuildCommand": "",
@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "Derive",
+        "title": "tenra Derive",
         "width": 1280,
         "height": 860
       }

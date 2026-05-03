@@ -4,13 +4,13 @@ import { readPublicConfig } from "@derive/config";
 import { mockProgressEvents } from "@derive/realtime";
 import { PageShell, SectionCard, StatusPill } from "@derive/ui";
 
-const config = readPublicConfig({ APP_NAME: "Derive" });
+const config = readPublicConfig({ APP_NAME: "tenra Derive" });
 
 export default function App() {
   return (
     <PageShell
       eyebrow="Scaffolded surface: desktopapp"
-      title="Derive desktop shell"
+      title="tenra Derive desktop shell"
       description="Desktop exists as a lightweight shell for future focused workflows such as side-by-side trace review, longer context panes, and local developer utility modes."
       aside={
         <div className="desktop-aside">

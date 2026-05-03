@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Derive",
+  title: "tenra Derive",
   description:
-    "Derive is a developer Q&A system that turns messy technical questions into structured answers with context, assumptions, and traceability."
+    "tenra Derive is a developer Q&A system that turns messy technical questions into structured answers with context, assumptions, and traceability."
 };
 
 export default function RootLayout({

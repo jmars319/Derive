@@ -66,7 +66,7 @@ export const deriveQuestionResponseSchema: z.ZodType<DeriveQuestionResponse> = z
 
 export const healthCheckResponseSchema: z.ZodType<HealthCheckResponse> = z.object({
   status: z.literal("ok"),
-  app: z.literal("Derive"),
+  app: z.literal("tenra Derive"),
   mode: z.enum(["mock", "live"]),
   timestampMs: timestampMsSchema,
   surfaces: z.object({

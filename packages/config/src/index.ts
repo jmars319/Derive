@@ -1,4 +1,4 @@
-export const appName = "Derive";
+export const appName = "tenra Derive";
 export const packageScope = "@derive";
 export const activeSurface = "webapp";
 export const scaffoldedSurfaces = ["desktopapp", "mobileapp"] as const;

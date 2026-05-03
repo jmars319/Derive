@@ -30,7 +30,7 @@ export type DeriveQuestionResponse = {
 
 export type HealthCheckResponse = {
   status: "ok";
-  app: "Derive";
+  app: "tenra Derive";
   mode: "mock" | "live";
   timestampMs: TimestampMs;
   surfaces: Record<DeriveClient, SurfaceStatus>;
@@ -55,7 +55,7 @@ export const mockDeriveQuestionResponse: DeriveQuestionResponse = {
 
 export const mockHealthCheckResponse: HealthCheckResponse = {
   status: "ok",
-  app: "Derive",
+    app: "tenra Derive",
   mode: "mock",
   timestampMs: 1742390500000,
   surfaces: {

@@ -1,6 +1,6 @@
-# Derive
+# tenra Derive
 
-Derive is a developer Q&A system without entry friction. The product direction is centered on turning messy technical questions into structured answers that surface context, assumptions, confidence, and source traceability instead of pretending every answer is final or fully certain.
+tenra Derive is a developer Q&A system without entry friction. The product direction is centered on turning messy technical questions into structured answers that surface context, assumptions, confidence, and source traceability instead of pretending every answer is final or fully certain.
 
 This monorepo exists to keep the center of gravity in shared domain packages while letting delivery surfaces stay thin. The active surface is `apps/webapp`. `apps/desktopapp` and `apps/mobileapp` are intentionally scaffolded for future use, but they already consume real shared packages so the repository is runnable as a genuine workspace instead of a folder mockup.
 
@@ -28,7 +28,7 @@ This monorepo exists to keep the center of gravity in shared domain packages whi
 
 ## Monorepo shape
 
-- `packages/domain`: Derive question, answer, source, scope, context, and assumption models.
+- `packages/domain`: tenra Derive question, answer, source, scope, context, and assumption models.
 - `packages/api-contracts`: request and response contracts plus static preview payloads.
 - `packages/validation`: Zod schemas for the main request and response shapes.
 - `packages/privacy`: source exposure and safe-display helpers.
