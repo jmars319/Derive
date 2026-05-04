@@ -9,9 +9,9 @@ const config = readPublicConfig({ APP_NAME: "tenra Derive" });
 export default function App() {
   return (
     <PageShell
-      eyebrow="Scaffolded surface: desktopapp"
-      title="tenra Derive desktop shell"
-      description="Desktop exists as a lightweight shell for future focused workflows such as side-by-side trace review, longer context panes, and local developer utility modes."
+      eyebrow="Desktop channel"
+      title="tenra Derive desktop"
+      description="Desktop is reserved for focused workflows such as side-by-side trace review, longer context panes, and local developer utility modes."
       aside={
         <div className="desktop-aside">
           <StatusPill label={mockHealthCheckResponse.surfaces.desktopapp} tone="warn" />
@@ -20,16 +20,15 @@ export default function App() {
       }
     >
       <div className="desktop-grid">
-        <SectionCard title="Shell status" kicker="Minimal by design">
+        <SectionCard title="Desktop status" kicker="Shared package baseline">
           <p>
-            {config.appName} desktop is intentionally thin. It reuses shared contracts and UI, but
-            it does not claim any native functionality yet.
+            {config.appName} desktop reuses shared contracts and UI while focused trace-review workflows are defined.
           </p>
         </SectionCard>
-        <SectionCard title="Latest mock answer" kicker="Shared contract import">
+        <SectionCard title="Latest sample answer" kicker="Shared contract import">
           <p>{mockDeriveQuestionResponse.answer.answerText}</p>
         </SectionCard>
-        <SectionCard title="Pipeline preview" kicker="Realtime package placeholder">
+        <SectionCard title="Pipeline preview" kicker="Realtime package">
           <ul>
             {mockProgressEvents.map((event) => (
               <li key={event.eventId}>

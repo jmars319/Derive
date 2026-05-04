@@ -10,11 +10,11 @@ export default function MobileApp() {
   return (
     <ScrollView contentContainerStyle={styles.page}>
       <View style={styles.hero}>
-        <Text style={styles.eyebrow}>Scaffolded surface: mobileapp</Text>
+        <Text style={styles.eyebrow}>Mobile channel</Text>
         <Text style={styles.title}>{appName} mobile</Text>
         <Text style={styles.body}>
-          Mobile is intentionally inactive in v0. The future role is quick question capture and
-          lightweight answer review, not the primary derivation surface yet.
+          Mobile is reserved for quick question capture and lightweight answer review while desktop and web carry the
+          primary derivation flow.
         </Text>
       </View>
 

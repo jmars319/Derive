@@ -4,7 +4,7 @@ export type ExposureControl = "full" | "redacted" | "summary-only";
 
 export const defaultPrivacyPosture = {
   intake: "Questions can be asked without requiring account setup in v0.",
-  storage: "No persistence guarantees are implied by the scaffold.",
+  storage: "Persistence is limited to the active local workflow.",
   sources: "Sources should be cited with purpose and exposure level, not dumped blindly."
 } as const;
 

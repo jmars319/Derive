@@ -80,7 +80,7 @@ export function PageShell({
                 textTransform: "uppercase"
               }}
             >
-              <span>{eyebrow ?? "Developer Q&A scaffold"}</span>
+              <span>{eyebrow ?? "Developer Q&A"}</span>
               <span>{appName}</span>
             </div>
             <h1
