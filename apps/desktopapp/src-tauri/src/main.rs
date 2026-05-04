@@ -1,3 +1,5 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 fn main() {
-    println!("tenra Derive desktop native shell is not wired in this v0 scaffold.");
+    derive_desktopapp_lib::run()
 }

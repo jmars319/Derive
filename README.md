@@ -7,7 +7,7 @@ This monorepo exists to keep the center of gravity in shared domain packages whi
 ## Active vs scaffolded
 
 - `apps/webapp`: active v0 surface with a question intake, derived answer card, context and assumptions panel, cited sources, and trust note using shared mock contracts.
-- `apps/desktopapp`: scaffolded Vite React shell with Tauri directory presence and shared-package imports.
+- `apps/desktopapp`: launchable Vite React + Tauri desktop shell with shared-package imports.
 - `apps/mobileapp`: scaffolded Expo app for future lightweight question capture and answer review.
 
 ## Primary commands
@@ -23,6 +23,7 @@ This monorepo exists to keep the center of gravity in shared domain packages whi
 - `pnpm typecheck`: typecheck every package and app.
 - `pnpm verify:web`: build the web app.
 - `pnpm verify:desktop`: build the desktop app.
+- `pnpm install:desktop`: build and install the macOS desktop app into `/Applications`.
 - `pnpm verify:mobile`: export the mobile app bundle.
 - `pnpm run doctor`: run the full verification path. `doctor` is a pnpm built-in command name, so use `run` for the repo script.
 
