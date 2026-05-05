@@ -246,7 +246,8 @@ textarea {
 
 .action-row button:nth-child(3),
 .action-row button:nth-child(4),
-.action-row button:nth-child(5) {
+.action-row button:nth-child(5),
+.action-row button:nth-child(6) {
   background: #fffdfa;
   border-color: #cfc7bc;
   color: #182029;

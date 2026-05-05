@@ -91,6 +91,37 @@ const toMarkdown = (record: DeriveRecord, derived: DerivedAnswer) =>
     ...derived.sources.map((source) => `- ${source.title}: ${source.url}`),
   ].join("\n");
 
+const toAssemblyBriefMarkdown = (record: DeriveRecord, derived: DerivedAnswer) =>
+  [
+    "# Assembly Brief From Derive",
+    "",
+    `Source: tenra Derive`,
+    `Question: ${record.question || "Untitled question"}`,
+    `Status: ${record.status}`,
+    `Confidence: ${derived.confidence}`,
+    `Updated: ${new Date(record.updatedAt).toISOString()}`,
+    "",
+    "## Recommended Content Task",
+    "",
+    "Turn this answer card into a reviewed internal note, decision record, or customer-facing draft as appropriate.",
+    "",
+    "## Answer",
+    "",
+    record.answerText.trim() || derived.answerText,
+    "",
+    "## Review Notes",
+    "",
+    record.contextNotes.trim() || "(none)",
+    "",
+    "## Assumptions",
+    "",
+    ...derived.assumptions.map((item) => `- ${item.text}`),
+    "",
+    "## Sources",
+    "",
+    ...derived.sources.map((source) => `- ${source.title}: ${source.url}`),
+  ].join("\n");
+
 export default function App() {
   const [records, setRecords] = useState<DeriveRecord[]>(loadRecords);
   const [activeId, setActiveId] = useState(records[0]?.id ?? "");
@@ -145,6 +176,10 @@ export default function App() {
     [activeRecord.id, activeRecord.question],
   );
   const markdown = useMemo(() => toMarkdown(activeRecord, derived), [activeRecord, derived]);
+  const assemblyBriefMarkdown = useMemo(
+    () => toAssemblyBriefMarkdown(activeRecord, derived),
+    [activeRecord, derived],
+  );
 
   const updateActiveRecord = (updates: Partial<DeriveRecord>) => {
     const updatedAt = now();
@@ -190,6 +225,15 @@ export default function App() {
     try {
       await navigator.clipboard.writeText(markdown);
       setNotice("Markdown copied.");
+    } catch {
+      setNotice("Clipboard copy failed. Export still works.");
+    }
+  };
+
+  const copyAssemblyBrief = async () => {
+    try {
+      await navigator.clipboard.writeText(assemblyBriefMarkdown);
+      setNotice("Assembly brief copied.");
     } catch {
       setNotice("Clipboard copy failed. Export still works.");
     }
@@ -295,6 +339,9 @@ export default function App() {
             </button>
             <button type="button" onClick={copyMarkdown}>
               Copy Markdown
+            </button>
+            <button type="button" onClick={copyAssemblyBrief}>
+              Copy Assembly Brief
             </button>
             <button type="button" onClick={exportMarkdown}>
               Export
