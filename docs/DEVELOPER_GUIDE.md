@@ -3,19 +3,19 @@
 ## Bootstrap
 
 1. Run `pnpm bootstrap`.
-2. If desktop native work is activated later, confirm Rust is installed.
+2. Confirm Rust is installed when working on the primary desktop surface.
 3. Copy `.env.example` to a local `.env` file only if you need to experiment with environment values. The scaffold defaults to mock mode.
 
 ## Running apps
 
-- `pnpm dev:web`
-  Builds shared packages and starts the active Next.js surface.
 - `pnpm dev:desktop`
-  Builds shared packages and starts the scaffolded Vite desktop shell.
+  Builds shared packages and starts the primary desktop workbench.
+- `pnpm dev:web`
+  Builds shared packages and starts the secondary Next.js surface.
 - `pnpm dev:mobile`
-  Builds shared packages and starts the Expo mobile shell.
+  Builds shared packages and starts the third-surface Expo shell.
 - `pnpm dev:both`
-  Runs the web and desktop shells together for quick workspace checks.
+  Runs the desktop and web surfaces together for quick workspace checks.
 
 ## Verify flows
 

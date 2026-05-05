@@ -2,12 +2,12 @@
 
 tenra Derive is a developer Q&A system without entry friction. The product direction is centered on turning messy technical questions into structured answers that surface context, assumptions, confidence, and source traceability instead of pretending every answer is final or fully certain.
 
-This monorepo exists to keep the center of gravity in shared domain packages while letting delivery surfaces stay thin. The active surface is `apps/webapp`. `apps/desktopapp` and `apps/mobileapp` are intentionally scaffolded for future use, but they already consume real shared packages so the repository is runnable as a genuine workspace instead of a folder mockup.
+This monorepo exists to keep the center of gravity in shared domain packages while letting delivery surfaces stay thin. The web app remains the early browser surface, while the desktop app now provides a local structured-answer workbench for focused review.
 
 ## Active vs scaffolded
 
-- `apps/webapp`: active v0 surface with a question intake, derived answer card, context and assumptions panel, cited sources, and trust note using shared mock contracts.
-- `apps/desktopapp`: launchable Vite React + Tauri desktop shell with shared-package imports.
+- `apps/webapp`: active v0 browser surface with a question intake, derived answer card, context and assumptions panel, cited sources, and trust note using shared mock contracts.
+- `apps/desktopapp`: launchable Vite React + Tauri desktop workbench for local questions, context notes, deterministic signal extraction, editable answers, review state, and Markdown export.
 - `apps/mobileapp`: scaffolded Expo app for future lightweight question capture and answer review.
 
 ## Primary commands

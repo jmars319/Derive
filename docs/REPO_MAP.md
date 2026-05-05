@@ -3,11 +3,11 @@
 ## Apps
 
 - `apps/webapp`
-  Active surface. Next.js app that renders the tenra Derive concept clearly: messy question intake, structured answer, context and assumptions, source citations, and trust framing. It uses static mock data from shared contracts and does not imply a live backend.
+  Secondary Next.js surface that renders the tenra Derive concept clearly: messy question intake, structured answer, context and assumptions, source citations, and trust framing. It uses static mock data from shared contracts and does not imply a live backend.
 - `apps/desktopapp`
-  Scaffolded React desktop shell built with Vite. It imports shared contracts and placeholder realtime/auth helpers. `src-tauri/` exists only as native-shell shape, not as an active implementation.
+  Primary React/Tauri desktop workbench for local questions, context notes, deterministic signal extraction, editable answers, review state, and Markdown export.
 - `apps/mobileapp`
-  Scaffolded Expo app for future mobile question capture and answer review. It is intentionally minimal and marked as inactive for v0.
+  Third-surface Expo app for future mobile question capture and answer review. It remains intentionally minimal until the desktop and web workflows justify mobile depth.
 
 ## Shared packages
 
@@ -43,6 +43,6 @@
 
 ## Intentional minimalism
 
-- Desktop and mobile are present to prove structure, not to simulate readiness.
+- Desktop is now the main product target; web remains the companion surface and mobile stays intentionally small.
 - There is no database, auth system, background processing, or external API integration.
 - Shared packages compile and export meaningful types and helpers, but product logic is still placeholder-level.

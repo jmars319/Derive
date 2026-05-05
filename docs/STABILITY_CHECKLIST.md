@@ -12,4 +12,4 @@ Use this checklist before expanding product logic beyond the scaffold.
 - `pnpm verify:mobile` exports the Expo bundle successfully.
 - `pnpm run doctor` completes without errors.
 - Workspace imports resolve through package names such as `@derive/domain` rather than relative cross-package paths.
-- The active surface remains `apps/webapp`; desktop and mobile stay explicitly scaffolded until product work justifies more depth.
+- The active surface is `apps/desktopapp`; web remains second, and mobile stays intentionally small until product work justifies more depth.
