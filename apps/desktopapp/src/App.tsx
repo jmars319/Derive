@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { appName } from "@derive/config";
 import { deriveAnswer, normalizeQuestionText, type DerivedAnswer } from "@derive/domain";
+import { readDesktopStore, writeDesktopStore } from "./lib/desktopStore";
 
 type ReviewStatus = "draft" | "reviewed" | "archived";
 
@@ -50,16 +51,7 @@ const createRecord = (): DeriveRecord => {
 };
 
 const loadRecords = () => {
-  if (typeof window === "undefined") return [createRecord()];
-
-  try {
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) return [createRecord()];
-    const parsed = JSON.parse(raw) as DeriveRecord[];
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : [createRecord()];
-  } catch {
-    return [createRecord()];
-  }
+  return [createRecord()];
 };
 
 const formatTime = (timestamp: number) =>
@@ -103,10 +95,41 @@ export default function App() {
   const [records, setRecords] = useState<DeriveRecord[]>(loadRecords);
   const [activeId, setActiveId] = useState(records[0]?.id ?? "");
   const [notice, setNotice] = useState("Local derivation workbench ready.");
+  const [isStoreReady, setIsStoreReady] = useState(false);
 
   useEffect(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify(records));
-  }, [records]);
+    let cancelled = false;
+
+    readDesktopStore<DeriveRecord[]>(storageKey)
+      .then((storedRecords) => {
+        if (cancelled) return;
+
+        if (Array.isArray(storedRecords) && storedRecords.length > 0) {
+          setRecords(storedRecords);
+          setActiveId(storedRecords[0]?.id ?? "");
+          setNotice("Desktop store loaded.");
+        }
+
+        setIsStoreReady(true);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        setNotice(error instanceof Error ? error.message : "Desktop store unavailable.");
+        setIsStoreReady(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isStoreReady) return;
+
+    void writeDesktopStore(storageKey, records).catch((error: unknown) => {
+      setNotice(error instanceof Error ? error.message : "Desktop store write failed.");
+    });
+  }, [isStoreReady, records]);
 
   const activeRecord = records.find((record) => record.id === activeId) ?? records[0] ?? createRecord();
   const derived = useMemo(

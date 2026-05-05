@@ -328,3 +328,75 @@ textarea {
     padding: 14px;
   }
 }
+
+/* tenra.dev desktop palette */
+:root {
+  color-scheme: dark;
+  color: #f2f2f5;
+  background: #0f1015;
+}
+
+body,
+#root,
+.derive-shell,
+.derive-main {
+  background: #0f1015;
+  color: #f2f2f5;
+}
+
+.derive-sidebar,
+.record-button,
+.editor-panel,
+.inspector-panel section,
+.compact-list li,
+.text-list li,
+.source-list li,
+input,
+textarea,
+select {
+  border-color: #30323b;
+  background: #15161d;
+  color: #f2f2f5;
+}
+
+.brand-block p,
+.toolbar span,
+.record-button small,
+.eyebrow,
+.panel-header span,
+.compact-list b,
+.compact-list span,
+.text-list li,
+.source-list span,
+label,
+.notice {
+  color: #a0a0a0;
+}
+
+.toolbar button,
+.action-row button {
+  border-color: #09a6d6;
+  background: #09a6d6;
+  color: #071015;
+}
+
+.action-row button:nth-child(n + 2) {
+  border-color: #30323b;
+  background: #202129;
+  color: #f2f2f5;
+}
+
+.record-button:hover,
+.record-button-active {
+  border-color: rgba(9, 166, 214, 0.58);
+  background: #1a1b22;
+}
+
+.derive-sidebar {
+  border-right-color: #30323b;
+}
+
+.text-list li,
+.source-list li {
+  border-left-color: #09a6d6;
+}
