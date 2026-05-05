@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { appName } from "@derive/config";
 import { deriveAnswer, normalizeQuestionText, type DerivedAnswer } from "@derive/domain";
-import { readDesktopStore, writeDesktopStore } from "./lib/desktopStore";
+import { readDesktopStore, readLegacyLocalStorage, writeDesktopStore } from "./lib/desktopStore";
 
 type ReviewStatus = "draft" | "reviewed" | "archived";
 
@@ -104,10 +104,18 @@ export default function App() {
       .then((storedRecords) => {
         if (cancelled) return;
 
-        if (Array.isArray(storedRecords) && storedRecords.length > 0) {
-          setRecords(storedRecords);
-          setActiveId(storedRecords[0]?.id ?? "");
-          setNotice("Desktop store loaded.");
+        const legacyRecords = readLegacyLocalStorage<DeriveRecord[]>(storageKey);
+        const nextRecords =
+          Array.isArray(storedRecords) && storedRecords.length > 0
+            ? storedRecords
+            : Array.isArray(legacyRecords) && legacyRecords.length > 0
+              ? legacyRecords
+              : null;
+
+        if (nextRecords) {
+          setRecords(nextRecords);
+          setActiveId(nextRecords[0]?.id ?? "");
+          setNotice(storedRecords ? "Desktop store loaded." : "Legacy workbench records migrated.");
         }
 
         setIsStoreReady(true);
