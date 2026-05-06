@@ -38,9 +38,15 @@ importers:
       '@derive/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@derive/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@derive/realtime':
         specifier: workspace:*
         version: link:../../packages/realtime
+      '@derive/shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       '@derive/ui':
         specifier: workspace:*
         version: link:../../packages/ui
