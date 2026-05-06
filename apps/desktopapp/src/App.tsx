@@ -164,6 +164,92 @@ const toAssemblyBriefMarkdown = (record: DeriveRecord, derived: DerivedAnswer) =
     ...derived.sources.map((source) => `- ${source.title}: ${source.url}`),
   ].join("\n");
 
+function recordFromFacetOrientationPacket(input: Record<string, unknown>, timestamp: number): DeriveRecord {
+  const query = input.query && typeof input.query === "object" ? (input.query as Record<string, unknown>) : {};
+  const response = input.response && typeof input.response === "object" ? (input.response as Record<string, unknown>) : {};
+  const search = response.search && typeof response.search === "object" ? (response.search as Record<string, unknown>) : {};
+  const reframing =
+    response.reframing && typeof response.reframing === "object"
+      ? (response.reframing as Record<string, unknown>)
+      : {};
+  const block =
+    reframing.block && typeof reframing.block === "object"
+      ? (reframing.block as Record<string, unknown>)
+      : {};
+  const handoff = input.handoff && typeof input.handoff === "object" ? (input.handoff as Record<string, unknown>) : {};
+  const results = Array.isArray(search.results) ? (search.results as Array<Record<string, unknown>>) : [];
+  const question = typeof query.text === "string" ? query.text : "Facet orientation packet";
+  const prompt = typeof handoff.prompt === "string" ? handoff.prompt : "";
+  const heading = typeof block.heading === "string" ? block.heading : "Facet orientation";
+  const line = typeof block.line === "string" ? block.line : "";
+
+  return {
+    id: createId(),
+    question,
+    contextNotes: [heading, line, prompt].filter(Boolean).join("\n\n"),
+    localSources: results.slice(0, 8).map((result) => ({
+      id: createId(),
+      title: typeof result.title === "string" ? result.title : "Facet source",
+      url: typeof result.url === "string" ? result.url : "",
+      body: typeof result.snippet === "string" ? result.snippet : "Facet result imported as source context.",
+      createdAt: timestamp,
+    })),
+    answerText: prompt || line || heading,
+    status: "draft",
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
+function recordFromSentinelRiskBrief(input: Record<string, unknown>, timestamp: number): DeriveRecord {
+  const lookup = input.lookup && typeof input.lookup === "object" ? (input.lookup as Record<string, unknown>) : {};
+  const assessment =
+    lookup.assessment && typeof lookup.assessment === "object"
+      ? (lookup.assessment as Record<string, unknown>)
+      : {};
+  const reasoning =
+    assessment.reasoning && typeof assessment.reasoning === "object"
+      ? (assessment.reasoning as Record<string, unknown>)
+      : {};
+  const handoff = input.handoff && typeof input.handoff === "object" ? (input.handoff as Record<string, unknown>) : {};
+  const evidence = Array.isArray(lookup.evidence) ? (lookup.evidence as Array<Record<string, unknown>>) : [];
+  const question =
+    typeof handoff.questionForDerive === "string"
+      ? handoff.questionForDerive
+      : "Review Sentinel risk brief evidence and uncertainty.";
+
+  return {
+    id: createId(),
+    question,
+    contextNotes: [
+      typeof reasoning.headline === "string" ? reasoning.headline : "",
+      typeof reasoning.narrative === "string" ? reasoning.narrative : "",
+      `Action posture: ${typeof handoff.actionPosture === "string" ? handoff.actionPosture : "review"}`,
+    ]
+      .filter(Boolean)
+      .join("\n\n"),
+    localSources: evidence.slice(0, 8).map((item) => ({
+      id: createId(),
+      title: typeof item.label === "string" ? item.label : "Sentinel evidence",
+      url: "",
+      body:
+        typeof item.redactionSafeSummary === "string"
+          ? item.redactionSafeSummary
+          : typeof item.summary === "string"
+            ? item.summary
+            : "Sentinel evidence imported as source context.",
+      createdAt: timestamp,
+    })),
+    answerText:
+      typeof reasoning.narrative === "string"
+        ? reasoning.narrative
+        : "Sentinel risk brief imported for structured reasoning.",
+    status: "draft",
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
 export default function App() {
   const [records, setRecords] = useState<DeriveRecord[]>(loadRecords);
   const [activeId, setActiveId] = useState(records[0]?.id ?? "");
@@ -359,33 +445,44 @@ export default function App() {
 
   const importReasoningBrief = () => {
     if (!handoffJson.trim()) {
-      setNotice("Paste a Derive reasoning brief before importing.");
+      setNotice("Paste a Derive, Facet, or Sentinel handoff before importing.");
       return;
     }
 
     try {
-      const brief = parseDeriveReasoningBrief(JSON.parse(handoffJson));
+      const parsed = JSON.parse(handoffJson) as Record<string, unknown>;
       const timestamp = now();
-      const record: DeriveRecord = {
-        id: createId(),
-        question: brief.question.text,
-        contextNotes: [brief.handoff.summary, ...brief.handoff.openQuestions].join("\n"),
-        localSources: brief.answer.sources.map((source) => ({
-          id: createId(),
-          title: source.title,
-          url: source.url,
-          body: source.kind,
-          createdAt: timestamp,
-        })),
-        answerText: brief.answer.answerText,
-        status: "draft",
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      };
+      const record =
+        parsed.schema === "tenra-facet.orientation-packet.v1"
+          ? recordFromFacetOrientationPacket(parsed, timestamp)
+          : parsed.schema === "tenra-sentinel.risk-brief.v1"
+            ? recordFromSentinelRiskBrief(parsed, timestamp)
+            : (() => {
+                const brief = parseDeriveReasoningBrief(parsed);
+                setImportedBrief(brief);
+                return {
+                  id: createId(),
+                  question: brief.question.text,
+                  contextNotes: [brief.handoff.summary, ...brief.handoff.openQuestions].join("\n"),
+                  localSources: brief.answer.sources.map((source) => ({
+                    id: createId(),
+                    title: source.title,
+                    url: source.url,
+                    body: source.kind,
+                    createdAt: timestamp,
+                  })),
+                  answerText: brief.answer.answerText,
+                  status: "draft" as const,
+                  createdAt: timestamp,
+                  updatedAt: timestamp,
+                };
+              })();
       setRecords((current) => [record, ...current]);
       setActiveId(record.id);
-      setImportedBrief(brief);
-      setNotice(`Imported ${brief.schema}; ready for ${brief.handoff.recommendedConsumers.join(", ")}.`);
+      if (parsed.schema !== "tenra-derive.reasoning-brief.v1") {
+        setImportedBrief(null);
+      }
+      setNotice(`Imported ${String(parsed.schema)} as a Derive reasoning record.`);
     } catch (error) {
       setImportedBrief(null);
       setNotice(error instanceof Error ? error.message : "Reasoning brief import failed.");
