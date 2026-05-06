@@ -33,6 +33,7 @@
     "summary": "Structured answer with assumptions, context, confidence, and source traceability.",
     "recommendedConsumers": [
       "assembly",
+      "sentinel",
       "proxy"
     ],
     "openQuestions": [
