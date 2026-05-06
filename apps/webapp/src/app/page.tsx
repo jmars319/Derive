@@ -2,7 +2,11 @@
 
 import { type FormEvent, useState } from "react";
 
-import { buildDeriveReasoningBrief, mockHealthCheckResponse } from "@derive/api-contracts";
+import {
+  buildDeriveReasoningBrief,
+  mockHealthCheckResponse,
+  type DeriveReasoningBrief
+} from "@derive/api-contracts";
 import { readPublicConfig } from "@derive/config";
 import {
   deriveAnswer,
@@ -18,7 +22,7 @@ import {
 } from "@derive/privacy";
 import { CONFIDENCE_LEVELS } from "@derive/shared-types";
 import { PageShell, SectionCard, StatusPill } from "@derive/ui";
-import { deriveQuestionRequestSchema } from "@derive/validation";
+import { deriveQuestionRequestSchema, parseDeriveReasoningBrief } from "@derive/validation";
 
 const config = readPublicConfig({
   NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
@@ -39,6 +43,9 @@ export default function HomePage() {
   const [questionText, setQuestionText] = useState(mockUserQuestion.text);
   const [submittedQuestion, setSubmittedQuestion] = useState<UserQuestion>(mockUserQuestion);
   const [answer, setAnswer] = useState<DerivedAnswer>(() => deriveAnswer(mockUserQuestion));
+  const [reasoningBriefJson, setReasoningBriefJson] = useState("");
+  const [importedReasoningBrief, setImportedReasoningBrief] = useState<DeriveReasoningBrief | null>(null);
+  const [handoffMessage, setHandoffMessage] = useState("Paste a Derive reasoning brief to inspect it here.");
 
   const normalizedPrompt = normalizeQuestionText(questionText);
   const requestValidation = deriveQuestionRequestSchema.safeParse({
@@ -64,6 +71,25 @@ export default function HomePage() {
 
     setSubmittedQuestion(nextQuestion);
     setAnswer(deriveAnswer(nextQuestion));
+  }
+
+  function handleReasoningBriefImport() {
+    if (!reasoningBriefJson.trim()) {
+      setHandoffMessage("Paste a Derive reasoning brief before importing.");
+      return;
+    }
+
+    try {
+      const brief = parseDeriveReasoningBrief(JSON.parse(reasoningBriefJson));
+      setImportedReasoningBrief(brief);
+      setSubmittedQuestion(brief.question);
+      setQuestionText(brief.question.text);
+      setAnswer(brief.answer);
+      setHandoffMessage(`Imported ${brief.schema} from ${brief.sourceApp}.`);
+    } catch (error) {
+      setImportedReasoningBrief(null);
+      setHandoffMessage(error instanceof Error ? error.message : "Reasoning brief import failed.");
+    }
   }
 
   return (
@@ -127,6 +153,44 @@ export default function HomePage() {
               <p className="hint-copy">Runs the local domain pipeline without leaving the app.</p>
             </div>
           </form>
+        </SectionCard>
+
+        <SectionCard title="Reasoning brief import" kicker="Suite JSON inbox">
+          <div className="composer">
+            <label htmlFor="reasoning-brief-json" className="field-label">
+              Reasoning brief JSON
+            </label>
+            <textarea
+              id="reasoning-brief-json"
+              value={reasoningBriefJson}
+              onChange={(event) => setReasoningBriefJson(event.target.value)}
+              aria-label="Derive reasoning brief JSON"
+            />
+            <div className="submit-row">
+              <button type="button" className="submit-button" onClick={handleReasoningBriefImport}>
+                Import brief
+              </button>
+              <p className="hint-copy">{handoffMessage}</p>
+            </div>
+            {importedReasoningBrief ? (
+              <div className="system-note">
+                <dl>
+                  <div>
+                    <dt>Schema</dt>
+                    <dd>{importedReasoningBrief.schema}</dd>
+                  </div>
+                  <div>
+                    <dt>Source app</dt>
+                    <dd>{importedReasoningBrief.sourceApp}</dd>
+                  </div>
+                  <div>
+                    <dt>Consumers</dt>
+                    <dd>{importedReasoningBrief.handoff.recommendedConsumers.join(", ")}</dd>
+                  </div>
+                </dl>
+              </div>
+            ) : null}
+          </div>
         </SectionCard>
 
         <div className="webapp-grid">
