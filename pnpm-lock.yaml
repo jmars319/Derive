@@ -50,6 +50,9 @@ importers:
       '@derive/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@derive/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       '@tauri-apps/api':
         specifier: ^2.11.0
         version: 2.11.0

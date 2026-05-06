@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  buildDeriveReasoningBrief,
+  type DeriveReasoningBrief,
+  type DeriveReasoningBriefConsumer,
+} from "@derive/api-contracts";
 import { appName } from "@derive/config";
 import { deriveAnswer, normalizeQuestionText, type DerivedAnswer } from "@derive/domain";
+import { parseDeriveReasoningBrief } from "@derive/validation";
 import { readDesktopStore, readLegacyLocalStorage, writeDesktopStore } from "./lib/desktopStore";
 
 type ReviewStatus = "draft" | "reviewed" | "archived";
@@ -35,6 +41,20 @@ const createId = () =>
     : `derive-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 const now = () => Date.now();
+const todayForFilename = () => new Date().toISOString().slice(0, 10);
+
+const downloadJsonFile = (value: unknown, filename: string) => {
+  const blob = new Blob([JSON.stringify(value, null, 2)], {
+    type: "application/json;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+};
 
 const derivedForQuestion = (id: string, question: string): DerivedAnswer =>
   deriveAnswer({
@@ -150,6 +170,8 @@ export default function App() {
   const [sourceTitle, setSourceTitle] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [sourceBody, setSourceBody] = useState("");
+  const [handoffJson, setHandoffJson] = useState("");
+  const [importedBrief, setImportedBrief] = useState<DeriveReasoningBrief | null>(null);
   const [notice, setNotice] = useState("Local derivation workbench ready.");
   const [isStoreReady, setIsStoreReady] = useState(false);
 
@@ -203,6 +225,22 @@ export default function App() {
   const markdown = useMemo(() => toMarkdown(activeRecord, derived), [activeRecord, derived]);
   const assemblyBriefMarkdown = useMemo(
     () => toAssemblyBriefMarkdown(activeRecord, derived),
+    [activeRecord, derived],
+  );
+  const activeReasoningBrief = useMemo(
+    () =>
+      buildDeriveReasoningBrief({
+        question: {
+          id: activeRecord.id,
+          text: normalizeQuestionText(activeRecord.question),
+          createdAt: activeRecord.createdAt,
+        },
+        answer: {
+          ...derived,
+          answerText: activeRecord.answerText.trim() || derived.answerText,
+        },
+        summary: activeRecord.contextNotes.trim() || undefined,
+      }),
     [activeRecord, derived],
   );
 
@@ -299,6 +337,61 @@ export default function App() {
     }
   };
 
+  const copyReasoningBrief = async (consumer: DeriveReasoningBriefConsumer = "assembly") => {
+    const payload = buildDeriveReasoningBrief({
+      question: activeReasoningBrief.question,
+      answer: activeReasoningBrief.answer,
+      recommendedConsumers: [consumer],
+      summary: activeReasoningBrief.handoff.summary,
+    });
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+      setNotice(`Reasoning brief copied for ${consumer}.`);
+    } catch {
+      setNotice("Clipboard copy failed. Export still works.");
+    }
+  };
+
+  const exportReasoningBrief = () => {
+    downloadJsonFile(activeReasoningBrief, `tenra-derive-reasoning-brief-${todayForFilename()}.json`);
+    setNotice("Reasoning brief export created.");
+  };
+
+  const importReasoningBrief = () => {
+    if (!handoffJson.trim()) {
+      setNotice("Paste a Derive reasoning brief before importing.");
+      return;
+    }
+
+    try {
+      const brief = parseDeriveReasoningBrief(JSON.parse(handoffJson));
+      const timestamp = now();
+      const record: DeriveRecord = {
+        id: createId(),
+        question: brief.question.text,
+        contextNotes: [brief.handoff.summary, ...brief.handoff.openQuestions].join("\n"),
+        localSources: brief.answer.sources.map((source) => ({
+          id: createId(),
+          title: source.title,
+          url: source.url,
+          body: source.kind,
+          createdAt: timestamp,
+        })),
+        answerText: brief.answer.answerText,
+        status: "draft",
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      };
+      setRecords((current) => [record, ...current]);
+      setActiveId(record.id);
+      setImportedBrief(brief);
+      setNotice(`Imported ${brief.schema}; ready for ${brief.handoff.recommendedConsumers.join(", ")}.`);
+    } catch (error) {
+      setImportedBrief(null);
+      setNotice(error instanceof Error ? error.message : "Reasoning brief import failed.");
+    }
+  };
+
   const exportMarkdown = () => {
     const slug = (activeRecord.question || "derive-question")
       .toLowerCase()
@@ -332,6 +425,31 @@ export default function App() {
           </button>
           <span>{activeRecords.length} active</span>
         </div>
+
+        <section className="source-editor" aria-label="Reasoning brief handoff inbox">
+          <header className="panel-header">
+            <span>Handoff Inbox</span>
+            <strong>JSON</strong>
+          </header>
+          <textarea
+            className="context-input"
+            placeholder='{"schema":"tenra-derive.reasoning-brief.v1",...}'
+            value={handoffJson}
+            onChange={(event) => setHandoffJson(event.target.value)}
+          />
+          <button className="source-add-button" type="button" onClick={importReasoningBrief}>
+            Import Brief
+          </button>
+          {importedBrief ? (
+            <div className="action-row">
+              {importedBrief.handoff.recommendedConsumers.map((consumer) => (
+                <button key={consumer} type="button" onClick={() => void copyReasoningBrief(consumer)}>
+                  Send {consumer}
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </section>
 
         <nav className="record-list" aria-label="Derive records">
           {records.map((record) => (
@@ -440,6 +558,12 @@ export default function App() {
             </button>
             <button type="button" onClick={copyAssemblyBrief}>
               Copy Assembly Brief
+            </button>
+            <button type="button" onClick={() => void copyReasoningBrief("guardrail")}>
+              Send Guardrail
+            </button>
+            <button type="button" onClick={exportReasoningBrief}>
+              Reasoning JSON
             </button>
             <button type="button" onClick={exportMarkdown}>
               Export

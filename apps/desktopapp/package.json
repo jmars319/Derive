@@ -18,6 +18,7 @@
     "@derive/domain": "workspace:*",
     "@derive/realtime": "workspace:*",
     "@derive/shared-types": "workspace:*",
+    "@derive/validation": "workspace:*",
     "@derive/ui": "workspace:*",
     "@tauri-apps/api": "^2.11.0",
     "react": "19.2.0",
