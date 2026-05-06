@@ -66,6 +66,30 @@ export interface DeriveReasoningBrief {
   };
 }
 
+export function buildDeriveReasoningBrief(input: {
+  question: UserQuestion;
+  answer: DerivedAnswer;
+  sourceApp?: DeriveReasoningBriefSourceApp | undefined;
+  exportedAt?: string | undefined;
+  recommendedConsumers?: DeriveReasoningBriefConsumer[] | undefined;
+  summary?: string | undefined;
+}): DeriveReasoningBrief {
+  return {
+    schema: "tenra-derive.reasoning-brief.v1",
+    exportedAt: input.exportedAt ?? new Date().toISOString(),
+    sourceApp: input.sourceApp ?? "manual",
+    question: input.question,
+    answer: input.answer,
+    handoff: {
+      summary:
+        input.summary ??
+        `Answer confidence is ${input.answer.confidence}; preserve assumptions and source traceability.`,
+      recommendedConsumers: input.recommendedConsumers ?? ["assembly"],
+      openQuestions: input.answer.assumptions.map((assumption) => assumption.text)
+    }
+  };
+}
+
 export const mockDeriveQuestionRequest: DeriveQuestionRequest = {
   question: normalizeQuestionText(mockUserQuestion.text),
   client: "webapp",
@@ -96,14 +120,10 @@ export const mockHealthCheckResponse: HealthCheckResponse = {
 };
 
 export const mockDeriveReasoningBrief: DeriveReasoningBrief = {
-  schema: "tenra-derive.reasoning-brief.v1",
-  exportedAt: "2026-05-06T17:30:00.000Z",
-  sourceApp: "manual",
-  question: mockUserQuestion,
-  answer: mockDerivedAnswer,
-  handoff: {
-    summary: "Structured answer with assumptions, context, confidence, and source traceability.",
-    recommendedConsumers: ["assembly"],
-    openQuestions: mockDerivedAnswer.assumptions.map((assumption) => assumption.text)
-  }
+  ...buildDeriveReasoningBrief({
+    exportedAt: "2026-05-06T17:30:00.000Z",
+    question: mockUserQuestion,
+    answer: mockDerivedAnswer,
+    summary: "Structured answer with assumptions, context, confidence, and source traceability."
+  })
 };

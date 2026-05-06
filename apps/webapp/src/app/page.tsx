@@ -2,7 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 
-import { mockHealthCheckResponse } from "@derive/api-contracts";
+import { buildDeriveReasoningBrief, mockHealthCheckResponse } from "@derive/api-contracts";
 import { readPublicConfig } from "@derive/config";
 import {
   deriveAnswer,
@@ -46,6 +46,12 @@ export default function HomePage() {
     client: "webapp"
   });
   const confidenceRank = CONFIDENCE_LEVELS.indexOf(answer.confidence) + 1;
+  const reasoningBrief = buildDeriveReasoningBrief({
+    question: submittedQuestion,
+    answer,
+    sourceApp: "manual",
+    recommendedConsumers: ["assembly", "proxy"]
+  });
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -197,6 +203,14 @@ export default function HomePage() {
                 <div>
                   <dt>Source posture</dt>
                   <dd>{defaultPrivacyPosture.sources}</dd>
+                </div>
+                <div>
+                  <dt>Handoff schema</dt>
+                  <dd>{reasoningBrief.schema}</dd>
+                </div>
+                <div>
+                  <dt>Consumers</dt>
+                  <dd>{reasoningBrief.handoff.recommendedConsumers.join(", ")}</dd>
                 </div>
               </dl>
             </div>
