@@ -36,6 +36,36 @@ export type HealthCheckResponse = {
   surfaces: Record<DeriveClient, SurfaceStatus>;
 };
 
+export type DeriveReasoningBriefSourceApp =
+  | "facet"
+  | "sentinel"
+  | "assembly"
+  | "guardrail"
+  | "scout"
+  | "registry"
+  | "proxy"
+  | "manual";
+
+export type DeriveReasoningBriefConsumer =
+  | "assembly"
+  | "guardrail"
+  | "sentinel"
+  | "proxy"
+  | "manual";
+
+export interface DeriveReasoningBrief {
+  schema: "tenra-derive.reasoning-brief.v1";
+  exportedAt: string;
+  sourceApp: DeriveReasoningBriefSourceApp;
+  question: UserQuestion;
+  answer: DerivedAnswer;
+  handoff: {
+    summary: string;
+    recommendedConsumers: DeriveReasoningBriefConsumer[];
+    openQuestions: string[];
+  };
+}
+
 export const mockDeriveQuestionRequest: DeriveQuestionRequest = {
   question: normalizeQuestionText(mockUserQuestion.text),
   client: "webapp",
@@ -62,5 +92,18 @@ export const mockHealthCheckResponse: HealthCheckResponse = {
     webapp: "active",
     desktopapp: "scaffolded",
     mobileapp: "scaffolded"
+  }
+};
+
+export const mockDeriveReasoningBrief: DeriveReasoningBrief = {
+  schema: "tenra-derive.reasoning-brief.v1",
+  exportedAt: "2026-05-06T17:30:00.000Z",
+  sourceApp: "manual",
+  question: mockUserQuestion,
+  answer: mockDerivedAnswer,
+  handoff: {
+    summary: "Structured answer with assumptions, context, confidence, and source traceability.",
+    recommendedConsumers: ["assembly"],
+    openQuestions: mockDerivedAnswer.assumptions.map((assumption) => assumption.text)
   }
 };

@@ -24,6 +24,7 @@ This monorepo exists to keep the center of gravity in shared domain packages whi
 - `pnpm verify:web`: build the web app.
 - `pnpm verify:desktop`: build the desktop app.
 - `pnpm install:desktop`: build and install the macOS desktop app into `/Applications`.
+- `pnpm launch:desktop`: open the installed macOS desktop app without rebuilding.
 - `pnpm verify:mobile`: export the mobile app bundle.
 - `pnpm run doctor`: run the full verification path. `doctor` is a pnpm built-in command name, so use `run` for the repo script.
 

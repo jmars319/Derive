@@ -1,5 +1,6 @@
 import {
   DERIVE_CLIENTS,
+  type DeriveReasoningBrief,
   type DeriveQuestionRequest,
   type DeriveQuestionResponse,
   type HealthCheckResponse
@@ -76,10 +77,36 @@ export const healthCheckResponseSchema: z.ZodType<HealthCheckResponse> = z.objec
   })
 });
 
+export const deriveReasoningBriefSchema: z.ZodType<DeriveReasoningBrief> = z.object({
+  schema: z.literal("tenra-derive.reasoning-brief.v1"),
+  exportedAt: z.string().datetime({ offset: true }),
+  sourceApp: z.enum([
+    "facet",
+    "sentinel",
+    "assembly",
+    "guardrail",
+    "scout",
+    "registry",
+    "proxy",
+    "manual"
+  ]),
+  question: userQuestionSchema,
+  answer: derivedAnswerSchema,
+  handoff: z.object({
+    summary: z.string().min(1),
+    recommendedConsumers: z.array(z.enum(["assembly", "guardrail", "sentinel", "proxy", "manual"])).min(1),
+    openQuestions: z.array(z.string().min(1))
+  })
+});
+
 export function parseDeriveQuestionRequest(input: unknown): DeriveQuestionRequest {
   return deriveQuestionRequestSchema.parse(input);
 }
 
 export function parseDeriveQuestionResponse(input: unknown): DeriveQuestionResponse {
   return deriveQuestionResponseSchema.parse(input);
+}
+
+export function parseDeriveReasoningBrief(input: unknown): DeriveReasoningBrief {
+  return deriveReasoningBriefSchema.parse(input);
 }
