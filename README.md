@@ -7,7 +7,7 @@ This monorepo exists to keep the center of gravity in shared domain packages whi
 ## Active vs scaffolded
 
 - `apps/webapp`: active v0 browser surface with a question intake, derived answer card, context and assumptions panel, cited sources, and trust note using shared mock contracts.
-- `apps/desktopapp`: launchable Vite React + Tauri desktop workbench for local questions, context notes, deterministic signal extraction, editable answers, review state, and Markdown export.
+- `apps/desktopapp`: launchable Vite React + Tauri desktop workbench for local questions, context notes, local source notes, deterministic signal extraction, editable answers, review state, Assembly handoff, and Markdown export.
 - `apps/mobileapp`: scaffolded Expo app for future lightweight question capture and answer review.
 
 ## Primary commands

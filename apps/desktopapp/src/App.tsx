@@ -5,10 +5,19 @@ import { readDesktopStore, readLegacyLocalStorage, writeDesktopStore } from "./l
 
 type ReviewStatus = "draft" | "reviewed" | "archived";
 
+type LocalSourceNote = {
+  id: string;
+  title: string;
+  url: string;
+  body: string;
+  createdAt: number;
+};
+
 type DeriveRecord = {
   id: string;
   question: string;
   contextNotes: string;
+  localSources?: LocalSourceNote[];
   answerText: string;
   status: ReviewStatus;
   createdAt: number;
@@ -43,6 +52,7 @@ const createRecord = (): DeriveRecord => {
     id,
     question: defaultQuestion,
     contextNotes: "Paste logs, source notes, constraints, or links here.",
+    localSources: [],
     answerText: derived.answerText,
     status: "draft",
     createdAt: timestamp,
@@ -77,6 +87,12 @@ const toMarkdown = (record: DeriveRecord, derived: DerivedAnswer) =>
     "## Context Notes",
     "",
     record.contextNotes.trim() || "(none)",
+    "",
+    "## Local Sources",
+    "",
+    ...(record.localSources?.length
+      ? record.localSources.map((source) => `- ${source.title}${source.url ? `: ${source.url}` : ""}\n  ${source.body}`)
+      : ["(none)"]),
     "",
     "## Assumptions",
     "",
@@ -113,6 +129,12 @@ const toAssemblyBriefMarkdown = (record: DeriveRecord, derived: DerivedAnswer) =
     "",
     record.contextNotes.trim() || "(none)",
     "",
+    "## Local Sources",
+    "",
+    ...(record.localSources?.length
+      ? record.localSources.map((source) => `- ${source.title}${source.url ? `: ${source.url}` : ""}\n  ${source.body}`)
+      : ["(none)"]),
+    "",
     "## Assumptions",
     "",
     ...derived.assumptions.map((item) => `- ${item.text}`),
@@ -125,6 +147,9 @@ const toAssemblyBriefMarkdown = (record: DeriveRecord, derived: DerivedAnswer) =
 export default function App() {
   const [records, setRecords] = useState<DeriveRecord[]>(loadRecords);
   const [activeId, setActiveId] = useState(records[0]?.id ?? "");
+  const [sourceTitle, setSourceTitle] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
+  const [sourceBody, setSourceBody] = useState("");
   const [notice, setNotice] = useState("Local derivation workbench ready.");
   const [isStoreReady, setIsStoreReady] = useState(false);
 
@@ -219,6 +244,41 @@ export default function App() {
   const archiveRecord = () => {
     updateActiveRecord({ status: "archived" });
     setNotice("Question archived.");
+  };
+
+  const addLocalSource = () => {
+    const title = sourceTitle.trim();
+    const body = sourceBody.trim();
+
+    if (!title || !body) {
+      setNotice("Add a source title and source notes before saving.");
+      return;
+    }
+
+    const source: LocalSourceNote = {
+      id: createId(),
+      title,
+      url: sourceUrl.trim(),
+      body,
+      createdAt: now(),
+    };
+
+    updateActiveRecord({
+      localSources: [source, ...(activeRecord.localSources ?? [])],
+      status: "draft",
+    });
+    setSourceTitle("");
+    setSourceUrl("");
+    setSourceBody("");
+    setNotice("Local source added.");
+  };
+
+  const removeLocalSource = (sourceId: string) => {
+    updateActiveRecord({
+      localSources: (activeRecord.localSources ?? []).filter((source) => source.id !== sourceId),
+      status: "draft",
+    });
+    setNotice("Local source removed.");
   };
 
   const copyMarkdown = async () => {
@@ -317,6 +377,44 @@ export default function App() {
               onChange={(event) => updateActiveRecord({ contextNotes: event.target.value, status: "draft" })}
             />
           </label>
+
+          <section className="source-editor" aria-label="Local sources">
+            <header className="panel-header">
+              <span>Local Sources</span>
+              <strong>{activeRecord.localSources?.length ?? 0}</strong>
+            </header>
+            <div className="source-editor-grid">
+              <label>
+                Title
+                <input value={sourceTitle} onChange={(event) => setSourceTitle(event.target.value)} />
+              </label>
+              <label>
+                URL
+                <input value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} />
+              </label>
+              <label className="source-editor-body">
+                Notes
+                <textarea value={sourceBody} onChange={(event) => setSourceBody(event.target.value)} />
+              </label>
+            </div>
+            <button className="source-add-button" type="button" onClick={addLocalSource}>
+              Add Source
+            </button>
+            <div className="source-note-list">
+              {(activeRecord.localSources ?? []).map((source) => (
+                <article key={source.id}>
+                  <div>
+                    <strong>{source.title}</strong>
+                    {source.url ? <span>{source.url}</span> : null}
+                    <p>{source.body}</p>
+                  </div>
+                  <button type="button" onClick={() => removeLocalSource(source.id)}>
+                    Remove
+                  </button>
+                </article>
+              ))}
+            </div>
+          </section>
 
           <label>
             Answer

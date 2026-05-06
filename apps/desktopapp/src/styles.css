@@ -16,6 +16,7 @@ body {
 }
 
 button,
+input,
 textarea {
   font: inherit;
 }
@@ -226,6 +227,92 @@ textarea {
   resize: vertical;
 }
 
+input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #cfc7bc;
+  border-radius: 8px;
+  background: #fffdfa;
+  color: #182029;
+  padding: 11px;
+}
+
+.source-editor {
+  display: grid;
+  gap: 12px;
+  border: 1px solid #d7d0c6;
+  border-radius: 8px;
+  background: #f8f5ef;
+  padding: 14px;
+}
+
+.source-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.source-editor-body {
+  grid-column: 1 / -1;
+}
+
+.source-editor-body textarea {
+  min-height: 96px;
+}
+
+.source-add-button,
+.source-note-list button {
+  justify-self: start;
+  border: 1px solid #263846;
+  border-radius: 8px;
+  background: #263846;
+  color: #fffdfa;
+  min-height: 34px;
+  padding: 7px 11px;
+  font-weight: 800;
+}
+
+.source-note-list {
+  display: grid;
+  gap: 8px;
+}
+
+.source-note-list article {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #ded8cf;
+  border-radius: 8px;
+  background: #fffdfa;
+  padding: 10px;
+}
+
+.source-note-list div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.source-note-list span,
+.source-note-list p {
+  margin: 0;
+  color: #68625b;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.source-note-list p {
+  white-space: pre-wrap;
+}
+
+.source-note-list button {
+  flex: 0 0 auto;
+  background: #fffdfa;
+  border-color: #cfc7bc;
+  color: #182029;
+}
+
 .question-input {
   min-height: 96px;
 }
@@ -328,6 +415,10 @@ textarea {
   .derive-main {
     padding: 14px;
   }
+
+  .source-editor-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* tenra.dev desktop palette */
@@ -348,6 +439,8 @@ body,
 .derive-sidebar,
 .record-button,
 .editor-panel,
+.source-editor,
+.source-note-list article,
 .inspector-panel section,
 .compact-list li,
 .text-list li,
@@ -369,19 +462,23 @@ select {
 .compact-list span,
 .text-list li,
 .source-list span,
+.source-note-list span,
+.source-note-list p,
 label,
 .notice {
   color: #a0a0a0;
 }
 
 .toolbar button,
-.action-row button {
+.action-row button,
+.source-add-button {
   border-color: #09a6d6;
   background: #09a6d6;
   color: #071015;
 }
 
-.action-row button:nth-child(n + 2) {
+.action-row button:nth-child(n + 2),
+.source-note-list button {
   border-color: #30323b;
   background: #202129;
   color: #f2f2f5;
