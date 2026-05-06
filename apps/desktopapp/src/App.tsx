@@ -6,7 +6,13 @@ import {
 } from "@derive/api-contracts";
 import { appName } from "@derive/config";
 import { deriveAnswer, normalizeQuestionText, type DerivedAnswer } from "@derive/domain";
-import { parseDeriveReasoningBrief } from "@derive/validation";
+import {
+  parseDeriveFacetOrientationPacket,
+  parseDeriveReasoningBrief,
+  parseDeriveSentinelRiskBrief,
+  type DeriveFacetOrientationPacket,
+  type DeriveSentinelRiskBrief,
+} from "@derive/validation";
 import { readDesktopStore, readLegacyLocalStorage, writeDesktopStore } from "./lib/desktopStore";
 
 type ReviewStatus = "draft" | "reviewed" | "archived";
@@ -164,34 +170,21 @@ const toAssemblyBriefMarkdown = (record: DeriveRecord, derived: DerivedAnswer) =
     ...derived.sources.map((source) => `- ${source.title}: ${source.url}`),
   ].join("\n");
 
-function recordFromFacetOrientationPacket(input: Record<string, unknown>, timestamp: number): DeriveRecord {
-  const query = input.query && typeof input.query === "object" ? (input.query as Record<string, unknown>) : {};
-  const response = input.response && typeof input.response === "object" ? (input.response as Record<string, unknown>) : {};
-  const search = response.search && typeof response.search === "object" ? (response.search as Record<string, unknown>) : {};
-  const reframing =
-    response.reframing && typeof response.reframing === "object"
-      ? (response.reframing as Record<string, unknown>)
-      : {};
-  const block =
-    reframing.block && typeof reframing.block === "object"
-      ? (reframing.block as Record<string, unknown>)
-      : {};
-  const handoff = input.handoff && typeof input.handoff === "object" ? (input.handoff as Record<string, unknown>) : {};
-  const results = Array.isArray(search.results) ? (search.results as Array<Record<string, unknown>>) : [];
-  const question = typeof query.text === "string" ? query.text : "Facet orientation packet";
-  const prompt = typeof handoff.prompt === "string" ? handoff.prompt : "";
-  const heading = typeof block.heading === "string" ? block.heading : "Facet orientation";
-  const line = typeof block.line === "string" ? block.line : "";
-
+function recordFromFacetOrientationPacket(input: DeriveFacetOrientationPacket, timestamp: number): DeriveRecord {
+  const results = input.response.search.results;
+  const question = input.query.text;
+  const prompt = input.handoff.prompt;
+  const heading = input.response.reframing.block.heading;
+  const line = input.response.reframing.block.line ?? "";
   return {
     id: createId(),
     question,
     contextNotes: [heading, line, prompt].filter(Boolean).join("\n\n"),
     localSources: results.slice(0, 8).map((result) => ({
       id: createId(),
-      title: typeof result.title === "string" ? result.title : "Facet source",
-      url: typeof result.url === "string" ? result.url : "",
-      body: typeof result.snippet === "string" ? result.snippet : "Facet result imported as source context.",
+      title: result.title,
+      url: result.url,
+      body: result.snippet ?? "Facet result imported as source context.",
       createdAt: timestamp,
     })),
     answerText: prompt || line || heading,
@@ -201,49 +194,29 @@ function recordFromFacetOrientationPacket(input: Record<string, unknown>, timest
   };
 }
 
-function recordFromSentinelRiskBrief(input: Record<string, unknown>, timestamp: number): DeriveRecord {
-  const lookup = input.lookup && typeof input.lookup === "object" ? (input.lookup as Record<string, unknown>) : {};
-  const assessment =
-    lookup.assessment && typeof lookup.assessment === "object"
-      ? (lookup.assessment as Record<string, unknown>)
-      : {};
-  const reasoning =
-    assessment.reasoning && typeof assessment.reasoning === "object"
-      ? (assessment.reasoning as Record<string, unknown>)
-      : {};
-  const handoff = input.handoff && typeof input.handoff === "object" ? (input.handoff as Record<string, unknown>) : {};
-  const evidence = Array.isArray(lookup.evidence) ? (lookup.evidence as Array<Record<string, unknown>>) : [];
-  const question =
-    typeof handoff.questionForDerive === "string"
-      ? handoff.questionForDerive
-      : "Review Sentinel risk brief evidence and uncertainty.";
-
+function recordFromSentinelRiskBrief(input: DeriveSentinelRiskBrief, timestamp: number): DeriveRecord {
+  const reasoning = input.lookup.assessment.reasoning;
+  const evidence = input.lookup.evidence;
+  const question = input.handoff.questionForDerive;
   return {
     id: createId(),
     question,
     contextNotes: [
-      typeof reasoning.headline === "string" ? reasoning.headline : "",
-      typeof reasoning.narrative === "string" ? reasoning.narrative : "",
-      `Action posture: ${typeof handoff.actionPosture === "string" ? handoff.actionPosture : "review"}`,
+      reasoning.headline,
+      reasoning.narrative,
+      `Action posture: ${input.handoff.actionPosture}`,
     ]
       .filter(Boolean)
       .join("\n\n"),
     localSources: evidence.slice(0, 8).map((item) => ({
       id: createId(),
-      title: typeof item.label === "string" ? item.label : "Sentinel evidence",
+      title: item.label,
       url: "",
-      body:
-        typeof item.redactionSafeSummary === "string"
-          ? item.redactionSafeSummary
-          : typeof item.summary === "string"
-            ? item.summary
-            : "Sentinel evidence imported as source context.",
+      body: item.redactionSafeSummary ?? item.summary ?? "Sentinel evidence imported as source context.",
       createdAt: timestamp,
     })),
     answerText:
-      typeof reasoning.narrative === "string"
-        ? reasoning.narrative
-        : "Sentinel risk brief imported for structured reasoning.",
+      reasoning.narrative,
     status: "draft",
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -454,9 +427,9 @@ export default function App() {
       const timestamp = now();
       const record =
         parsed.schema === "tenra-facet.orientation-packet.v1"
-          ? recordFromFacetOrientationPacket(parsed, timestamp)
+          ? recordFromFacetOrientationPacket(parseDeriveFacetOrientationPacket(parsed), timestamp)
           : parsed.schema === "tenra-sentinel.risk-brief.v1"
-            ? recordFromSentinelRiskBrief(parsed, timestamp)
+            ? recordFromSentinelRiskBrief(parseDeriveSentinelRiskBrief(parsed), timestamp)
             : (() => {
                 const brief = parseDeriveReasoningBrief(parsed);
                 setImportedBrief(brief);

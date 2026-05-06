@@ -99,6 +99,63 @@ export const deriveReasoningBriefSchema: z.ZodType<DeriveReasoningBrief> = z.obj
   })
 });
 
+export const deriveFacetOrientationPacketSchema = z.object({
+  schema: z.literal("tenra-facet.orientation-packet.v1"),
+  exportedAt: z.string().datetime({ offset: true }),
+  sourceApp: z.literal("facet"),
+  query: z.object({
+    text: z.string().min(1)
+  }).passthrough(),
+  response: z.object({
+    search: z.object({
+      results: z.array(
+        z.object({
+          title: z.string().min(1),
+          url: z.string().min(1),
+          snippet: z.string().optional()
+        }).passthrough()
+      )
+    }).passthrough(),
+    reframing: z.object({
+      block: z.object({
+        heading: z.string().min(1),
+        line: z.string().optional()
+      }).passthrough()
+    }).passthrough()
+  }).passthrough(),
+  handoff: z.object({
+    prompt: z.string().min(1)
+  }).passthrough()
+}).passthrough();
+
+export const deriveSentinelRiskBriefSchema = z.object({
+  schema: z.literal("tenra-sentinel.risk-brief.v1"),
+  exportedAt: z.string().datetime({ offset: true }),
+  sourceApp: z.literal("sentinel"),
+  lookup: z.object({
+    assessment: z.object({
+      reasoning: z.object({
+        headline: z.string().min(1),
+        narrative: z.string().min(1)
+      }).passthrough()
+    }).passthrough(),
+    evidence: z.array(
+      z.object({
+        label: z.string().min(1),
+        summary: z.string().optional(),
+        redactionSafeSummary: z.string().optional()
+      }).passthrough()
+    )
+  }).passthrough(),
+  handoff: z.object({
+    questionForDerive: z.string().min(1),
+    actionPosture: z.string().min(1)
+  }).passthrough()
+}).passthrough();
+
+export type DeriveFacetOrientationPacket = z.infer<typeof deriveFacetOrientationPacketSchema>;
+export type DeriveSentinelRiskBrief = z.infer<typeof deriveSentinelRiskBriefSchema>;
+
 export function parseDeriveQuestionRequest(input: unknown): DeriveQuestionRequest {
   return deriveQuestionRequestSchema.parse(input);
 }
@@ -109,4 +166,12 @@ export function parseDeriveQuestionResponse(input: unknown): DeriveQuestionRespo
 
 export function parseDeriveReasoningBrief(input: unknown): DeriveReasoningBrief {
   return deriveReasoningBriefSchema.parse(input);
+}
+
+export function parseDeriveFacetOrientationPacket(input: unknown): DeriveFacetOrientationPacket {
+  return deriveFacetOrientationPacketSchema.parse(input);
+}
+
+export function parseDeriveSentinelRiskBrief(input: unknown): DeriveSentinelRiskBrief {
+  return deriveSentinelRiskBriefSchema.parse(input);
 }
