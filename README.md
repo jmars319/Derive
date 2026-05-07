@@ -1,40 +1,74 @@
 # tenra Derive
 
-tenra Derive is a developer Q&A system without entry friction. The product direction is centered on turning messy technical questions into structured answers that surface context, assumptions, confidence, and source traceability instead of pretending every answer is final or fully certain.
+tenra Derive is a structured technical Q&A workbench. It is designed to turn messy questions into answers that expose context, assumptions, confidence, and source traceability instead of pretending every response is final.
 
-This monorepo exists to keep the center of gravity in shared domain packages while letting delivery surfaces stay thin. The web app remains the early browser surface, while the desktop app now provides a local structured-answer workbench for focused review.
+The repo keeps product logic in shared packages while allowing web, desktop, and future mobile surfaces to stay thin.
 
-## Active vs scaffolded
+## Operational Purpose
 
-- `apps/webapp`: active v0 browser surface with a question intake, derived answer card, context and assumptions panel, cited sources, and trust note using shared mock contracts.
-- `apps/desktopapp`: launchable Vite React + Tauri desktop workbench for local questions, context notes, local source notes, deterministic signal extraction, editable answers, review state, Assembly handoff, and Markdown export.
-- `apps/mobileapp`: scaffolded Expo app for future lightweight question capture and answer review.
+- Capture technical questions with enough context to make answers reviewable.
+- Produce structured answers that separate conclusions, assumptions, citations, and uncertainty.
+- Support local review and editing before an answer is exported or handed off.
+- Keep source traceability visible as part of the answer, not as an afterthought.
 
-## Primary commands
+## Design Posture
 
-- `pnpm bootstrap`: install dependencies and confirm the local toolchain.
-- `pnpm dev:web`: build shared packages and run the Next.js app.
-- `pnpm dev:desktop`: build shared packages and run the Vite desktop shell.
-- `pnpm dev:mobile`: build shared packages and run the Expo mobile shell.
-- `pnpm dev:both`: run the web and desktop shells together.
-- `pnpm check-env`: verify Node and pnpm expectations.
-- `pnpm check-packages`: confirm workspace manifests and installed packages.
-- `pnpm lint`: run ESLint across the workspace.
-- `pnpm typecheck`: typecheck every package and app.
-- `pnpm verify:web`: build the web app.
-- `pnpm verify:desktop`: build the desktop app.
-- `pnpm install:desktop`: build and install the macOS desktop app into `/Applications`.
-- `pnpm launch:desktop`: open the installed macOS desktop app without rebuilding.
-- `pnpm verify:mobile`: export the mobile app bundle.
-- `pnpm run doctor`: run the full verification path. `doctor` is a pnpm built-in command name, so use `run` for the repo script.
+- Confidence and uncertainty are first-class output fields.
+- The desktop app is a focused local review workbench.
+- The web app provides the early browser surface.
+- Shared contracts and validation define the behavior before provider integrations expand.
+- AI assistance should clarify reasoning, not hide the reasoning path.
 
-## Monorepo shape
+## Architecture
 
-- `packages/domain`: tenra Derive question, answer, source, scope, context, and assumption models.
-- `packages/api-contracts`: request and response contracts plus static preview payloads.
-- `packages/validation`: Zod schemas for the main request and response shapes.
-- `packages/privacy`: source exposure and safe-display helpers.
-- `packages/ui`: small shared React primitives used by the web and desktop shells.
-- `packages/config`: app identity and environment helpers.
+```text
+apps/
+  webapp/       Next.js browser surface for question intake and answer review
+  desktopapp/   Tauri + React/Vite local structured-answer workbench
+  mobileapp/    Expo scaffold for later lightweight capture and review
 
-Read [docs/REPO_MAP.md](docs/REPO_MAP.md) for package-by-package intent and [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) for day-to-day workflow.
+packages/
+  domain/       Question, answer, source, scope, and assumption models
+  api-contracts/ Request and response contracts plus preview payloads
+  validation/   Zod schemas for main request and response shapes
+  privacy/      Safe-display helpers for source material
+  ui/           Shared React primitives
+  config/       Product identity and environment helpers
+```
+
+## Current State
+
+- The web app is an active v0 surface with structured answer presentation.
+- The desktop app supports local questions, context notes, local source notes, editable answers, review state, Assembly handoff, and Markdown export.
+- The mobile app is scaffolded for future capture and review workflows.
+- The current product flow is still early and uses shared mock/static contracts where provider behavior is not yet wired.
+
+## Deployment Posture
+
+Derive is currently a local and development-stage product codebase. The desktop surface is the clearest operational path today; hosted deployment should wait until provider behavior, persistence, and source handling are hardened.
+
+## Working Locally
+
+```bash
+pnpm run bootstrap
+pnpm run dev:web
+pnpm run dev:desktop
+pnpm run typecheck
+pnpm run verify:all
+pnpm run doctor
+```
+
+Use `pnpm run dev:mobile` only when working on the scaffolded Expo surface.
+
+## Direction
+
+- Strengthen source handling and citation workflows.
+- Make confidence and assumption review more useful to operators.
+- Expand handoff behavior without turning answers into opaque automation.
+- Keep shared domain packages as the center of gravity.
+
+## Related Documentation
+
+- [Developer Guide](docs/DEVELOPER_GUIDE.md)
+- [Repo Map](docs/REPO_MAP.md)
+- [Stability Checklist](docs/STABILITY_CHECKLIST.md)
