@@ -231,6 +231,8 @@ export default function App() {
   const [sourceBody, setSourceBody] = useState("");
   const [handoffJson, setHandoffJson] = useState("");
   const [importedBrief, setImportedBrief] = useState<DeriveReasoningBrief | null>(null);
+  const [importPreview, setImportPreview] = useState("");
+  const [briefExportHistory, setBriefExportHistory] = useState<Array<{ exportedAt: number; consumers: string[]; question: string }>>([]);
   const [notice, setNotice] = useState("Local derivation workbench ready.");
   const [isStoreReady, setIsStoreReady] = useState(false);
 
@@ -413,6 +415,14 @@ export default function App() {
 
   const exportReasoningBrief = () => {
     downloadJsonFile(activeReasoningBrief, `tenra-derive-reasoning-brief-${todayForFilename()}.json`);
+    setBriefExportHistory((current) => [
+      {
+        exportedAt: now(),
+        consumers: activeReasoningBrief.handoff.recommendedConsumers,
+        question: activeReasoningBrief.question.text,
+      },
+      ...current,
+    ].slice(0, 8));
     setNotice("Reasoning brief export created.");
   };
 
@@ -425,6 +435,7 @@ export default function App() {
     try {
       const parsed = JSON.parse(handoffJson) as Record<string, unknown>;
       const timestamp = now();
+      setImportPreview(`Previewed ${String(parsed.schema)} at ${formatTime(timestamp)}.`);
       const record =
         parsed.schema === "tenra-facet.orientation-packet.v1"
           ? recordFromFacetOrientationPacket(parseDeriveFacetOrientationPacket(parsed), timestamp)
@@ -458,6 +469,7 @@ export default function App() {
       setNotice(`Imported ${String(parsed.schema)} as a Derive reasoning record.`);
     } catch (error) {
       setImportedBrief(null);
+      setImportPreview("");
       setNotice(error instanceof Error ? error.message : "Reasoning brief import failed.");
     }
   };
@@ -519,6 +531,7 @@ export default function App() {
               ))}
             </div>
           ) : null}
+          {importPreview ? <p className="notice">{importPreview}</p> : null}
         </section>
 
         <nav className="record-list" aria-label="Derive records">
@@ -643,6 +656,22 @@ export default function App() {
           <p className="notice" role="status">
             {notice}
           </p>
+          {briefExportHistory.length ? (
+            <section>
+              <header className="panel-header">
+                <span>Brief exports</span>
+                <strong>{briefExportHistory.length}</strong>
+              </header>
+              <ul className="compact-list">
+                {briefExportHistory.map((entry) => (
+                  <li key={`${entry.exportedAt}-${entry.question}`}>
+                    <b>{formatTime(entry.exportedAt)}</b>
+                    <span>{entry.consumers.join(", ")}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
         </section>
 
         <aside className="inspector-panel" aria-label="Answer inspector">
