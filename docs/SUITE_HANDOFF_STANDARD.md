@@ -8,6 +8,10 @@ reasoning brief and comparison module
 
 keep unique; consume Facet/Sentinel inputs and emit reasoning briefs to Assembly, Guardrail, Sentinel, and Proxy.
 
+## Standalone Mode
+
+Runs as a complete reasoning workspace with local questions, answers, brief history, import previews, and comparison state.
+
 ## Accepted Inputs
 
 - `tenra-facet.orientation-packet.v1` from tenra Facet
