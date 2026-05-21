@@ -32,6 +32,16 @@
 - `pnpm run doctor`
   Runs environment checks, package checks, lint, typecheck, and all verify scripts in sequence.
 
+## Local Tooling
+
+The shared local machine baseline supports Derive's reasoning workbench and desktop surface:
+
+- Use `cargo audit`, `cargo deny`, and `sccache` around Tauri/Rust work in `apps/desktopapp/src-tauri`.
+- Use `actionlint` before changing GitHub Actions workflows.
+- Use `shellcheck` and `shfmt` when editing repo scripts.
+- Use `osv-scanner` for dependency advisory checks across package manifests.
+- Use `pa11y` and `lighthouse` against the running web or desktop-served UI when interface behavior changes.
+
 ## Adding a package
 
 1. Create a new folder under `packages/`.
