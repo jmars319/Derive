@@ -1,6 +1,6 @@
 # Suite Handoff Standard
 
-Generated from `tenra Registry/contracts/handoff-catalog.json` by `tenra Registry/scripts/generate-suite-contract-docs.mjs`.
+Generated from `tenra Hub/contracts/handoff-catalog.json` by `tenra Hub/scripts/generate-suite-contract-docs.mjs`.
 
 ## App Role
 
@@ -11,6 +11,10 @@ keep unique; consume Facet/Sentinel inputs and emit reasoning briefs to Assembly
 ## Standalone Mode
 
 Runs as a complete reasoning workspace with local questions, answers, brief history, import previews, and comparison state.
+
+## Repository Path
+
+`capabilities/reasoning/tenra Derive`
 
 ## Accepted Inputs
 
